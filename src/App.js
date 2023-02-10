@@ -1,23 +1,44 @@
-import logo from './logo.svg';
-import './App.css';
+import { useEffect, useState } from "react";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import Navbar from "./components/Navbar.jsx";
+import Home from "./views/Home.jsx"
+import Favoritos from "./views/Favoritos.jsx"
+import MiContexto from "./context/MiContexto.jsx";
+import NotFound from "./views/NotFound.jsx";
+import "./index.css"
 
 function App() {
+
+  //Estados
+  const [fotos, setFotos] = useState([]);
+  const estadoGlobal = {fotos, setFotos};
+
+  //UseEffect
+  async function obtenerDatos() {
+    const res = await fetch('/fotos.json');
+    const data = await res.json();
+
+    setFotos(data.photos);
+  }
+  useEffect(() => {
+    //Callback
+    obtenerDatos();
+  }, []);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <MiContexto.Provider value={estadoGlobal}>
+        <BrowserRouter>
+          <Navbar></Navbar>
+
+          <Routes>
+            <Route path="/" element={ <Home></Home>}></Route>
+            <Route path="/favoritos" element={ <Favoritos></Favoritos>}></Route>
+            <Route path="*" element={ <NotFound></NotFound>}></Route>
+          </Routes>
+        </BrowserRouter>
+      </MiContexto.Provider>
     </div>
   );
 }
